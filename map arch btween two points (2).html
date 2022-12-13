@@ -1,0 +1,61 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title></title>
+</head>
+<body>
+<div id="map-canvas" style="height: 600px; width: 100%;"></div>
+<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?sensor=true&libraries=geometry,places&ext=.js"></script>
+<script type="text/javascript">
+    var map;
+
+    function init() {
+        map = new google.maps.Map(document.getElementById('map-canvas'));
+        var p1 = new google.maps.LatLng(24.77105931182975, 67.06546668154155);
+        var p2 = new google.maps.LatLng(24.77105931182975, 67.0769465360573);
+        var bounds = new google.maps.LatLngBounds();
+        bounds.extend(p2);
+        bounds.extend(p1);
+        map.fitBounds(bounds);
+        var markerP1 = new google.maps.Marker({
+            position: p1,
+            map: map
+        });
+        var markerP2 = new google.maps.Marker({
+            position: p2,
+            map: map
+        });
+        google.maps.event.addListener(map, 'projection_changed', function () {
+            var p1 = map.getProjection().fromLatLngToPoint(markerP1.getPosition());
+            var p2 = map.getProjection().fromLatLngToPoint(markerP2.getPosition());
+            var e = new google.maps.Point(p1.x - p2.x, p1.y - p2.y);
+            var m = new google.maps.Point(e.x / 2, e.y / 2);
+            var o = new google.maps.Point(0, 0.005);
+            var c = new google.maps.Point(m.x + o.x, m.y + o.y);
+            var curveMarker2 = new google.maps.Marker({
+                position: markerP1.getPosition(),
+            });
+            curveMarker2.setMap(map);
+            google.maps.event.addListener(map, 'zoom_changed', function () {
+                var zoom = map.getZoom();
+                var scale = 1 / (Math.pow(2, -zoom));
+                var icon = {
+                    path: "M 0 0 q " + c.x + " " + c.y + " " + e.x + " " + e.y,
+                    scale: scale,
+                    strokeWeight: 4,
+                    fillColor: '#009933',
+                    rotation: 180,
+                    anchor: new google.maps.Point(0, 0)
+                };
+                curveMarker2.setIcon(icon);
+            });
+        });
+    }
+    google.maps.event.addDomListener(window, 'load', init);
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC_gdyfmjquyOaYitkKyz7AvFuHcib0u-A&callback=myMap"></script>
+</body>
+</html>
